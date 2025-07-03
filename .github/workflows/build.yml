@@ -1,4 +1,4 @@
-name: Cross Compilation
+name: Cross-platform Build
 
 on:
   push:
@@ -11,46 +11,147 @@ env:
 
 jobs:
   build:
-    name: Build for ${{ matrix.os }} - ${{ matrix.arch }}
+    name: Build for ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        arch: [x86_64, aarch64]
-        exclude:
+        include:
+          # Linux targets
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            arch: x86_64
+            platform: linux
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            arch: aarch64
+            platform: linux
+          
+          # macOS targets
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            arch: x86_64
+            platform: macos
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            arch: aarch64
+            platform: macos
+          
+          # Windows targets
           - os: windows-latest
-            arch: aarch64 # Windows 环境暂不支持 aarch64 编译
+            target: x86_64-pc-windows-msvc
+            arch: x86_64
+            platform: windows
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          target: ${{ matrix.arch }}-unknown-${{ matrix.os == 'windows-latest' && 'windows-msvc' || (matrix.os == 'macos-latest' && 'apple-darwin' || 'linux-gnu') }}
-          override: true
+          targets: ${{ matrix.target }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Install cross-compilation tools (Linux aarch64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Configure cross-compilation (Linux aarch64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          echo "[target.aarch64-unknown-linux-gnu]" >> ~/.cargo/config.toml
+          echo "linker = \"aarch64-linux-gnu-gcc\"" >> ~/.cargo/config.toml
 
       - name: Build project
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --target ${{ matrix.arch }}-unknown-${{ matrix.os == 'windows-latest' && 'windows-msvc' || (matrix.os == 'macos-latest' && 'apple-darwin' || 'linux-gnu') }}
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Get binary name
+        id: binary_name
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform }}" == "windows" ]; then
+            echo "name=svbony-ai-assistant.exe" >> $GITHUB_OUTPUT
+          else
+            echo "name=svbony-ai-assistant" >> $GITHUB_OUTPUT
+          fi
 
       - name: Package artifacts
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            ext=".exe"
+          mkdir -p dist
+          binary_path="target/${{ matrix.target }}/release/${{ steps.binary_name.outputs.name }}"
+          
+          if [ -f "$binary_path" ]; then
+            # 创建发布包
+            release_name="svbony-ai-assistant-${{ matrix.platform }}-${{ matrix.arch }}"
+            mkdir -p "dist/$release_name"
+            cp "$binary_path" "dist/$release_name/"
+            
+            # 添加 README 或其他文档（如果存在）
+            if [ -f "README.md" ]; then
+              cp "README.md" "dist/$release_name/"
+            fi
+            
+            # 创建压缩包
+            cd dist
+            if [ "${{ matrix.platform }}" == "windows" ]; then
+              7z a "${release_name}.zip" "$release_name"
+            else
+              tar -czf "${release_name}.tar.gz" "$release_name"
+            fi
+            cd ..
           else
-            ext=""
+            echo "Binary not found at $binary_path"
+            exit 1
           fi
-          mkdir -p dist/${{ matrix.os }}-${{ matrix.arch }}
-          cp target/${{ matrix.arch }}-unknown-${{ matrix.os == 'windows-latest' && 'windows-msvc' || (matrix.os == 'macos-latest' && 'apple-darwin' || 'linux-gnu') }}/release/svbony-ai-assistant$ext dist/${{ matrix.os }}-${{ matrix.arch }}/
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-${{ matrix.arch }}-binary
-          path: dist/${{ matrix.os }}-${{ matrix.arch }}/
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-binary
+          path: dist/svbony-ai-assistant-${{ matrix.platform }}-${{ matrix.arch }}/
+
+      - name: Upload release package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-release
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+
+  # 可选：创建 GitHub Release
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          
+      - name: Display structure of downloaded files
+        run: ls -la artifacts/
+        
+      # 这里可以添加创建 GitHub Release 的步骤
+      # - name: Create Release
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     files: artifacts/*-release/*
+      #     tag_name: v${{ github.run_number }}
+      #     name: Release v${{ github.run_number }}
+      #     draft: false
+      #     prerelease: false
