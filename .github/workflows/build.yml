@@ -18,14 +18,14 @@ jobs:
       matrix:
         include:
           # Linux targets
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            arch: x86_64
-            platform: linux
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            arch: aarch64
-            platform: linux
+          # - os: ubuntu-latest
+          #   target: x86_64-unknown-linux-gnu
+          #   arch: x86_64
+          #   platform: linux
+          # - os: ubuntu-latest
+          #   target: aarch64-unknown-linux-gnu
+          #   arch: aarch64
+          #   platform: linux
           
           # macOS targets
           - os: macos-latest
@@ -147,11 +147,11 @@ jobs:
         run: ls -la artifacts/
         
       # 这里可以添加创建 GitHub Release 的步骤
-      # - name: Create Release
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     files: artifacts/*-release/*
-      #     tag_name: v${{ github.run_number }}
-      #     name: Release v${{ github.run_number }}
-      #     draft: false
-      #     prerelease: false
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*-release/*
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
