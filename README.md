@@ -1,5 +1,10 @@
 # SVBONY AI Assistant Usage Guide
 
+🇺🇸 [English](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README.md) | 🇫🇷 [Français](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-FR.md) | 🇩🇪 [Deutsch](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-DE.md) | 🇮🇹 [Italiano](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-IT.md) | 🇪🇸 [Español](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-ES.md) | 🇷🇺 [Русский](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-RU.md) | 🇵🇹 [Português](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-PT.md) | 🇯🇵 [日本語](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-JP.md) | 🇨🇳 [简体中文](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-CN.md)
+
+## Download Latest Releases
+[Download from GitHub Releases](https://github.com/dennischancs/svbony-ai-assistant/releases/latest)
+
 ## Introduction
 The SVBONY AI Assistant is a tool designed to monitor the AI button press events on the SVBONY SVHub Omni2P device and execute configured actions such as opening URLs, running commands, or displaying notifications. This tool supports Windows, macOS systems and can be configured to start automatically on system boot.
 
