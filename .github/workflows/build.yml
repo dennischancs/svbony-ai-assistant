@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux targets
+          # Linux targets (commented out)
           # - os: ubuntu-latest
           #   target: x86_64-unknown-linux-gnu
           #   arch: x86_64
@@ -127,13 +127,15 @@ jobs:
             dist/*.tar.gz
             dist/*.zip
 
-  # 可选：创建 GitHub Release
+  # 创建 GitHub Release
   release:
     name: Create Release
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+    permissions:
+      contents: write  # 需要写权限来创建 release
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -146,12 +148,48 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -la artifacts/
         
-      # 这里可以添加创建 GitHub Release 的步骤
+      - name: Prepare release files
+        run: |
+          mkdir -p release-files
+          find artifacts/ -name "*.tar.gz" -o -name "*.zip" | head -10 | while read file; do
+            if [ -f "$file" ]; then
+              echo "Found: $file"
+              cp "$file" release-files/
+            fi
+          done
+          ls -la release-files/
+        
+      - name: Generate tag name
+        id: tag
+        run: |
+          # 使用时间戳创建唯一标签
+          TAG="v$(date +'%Y%m%d-%H%M%S')"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Generated tag: $TAG"
+        
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/*-release/*
-          tag_name: v${{ github.run_number }}
-          name: Release v${{ github.run_number }}
+          files: |
+            release-files/*
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Release ${{ steps.tag.outputs.tag }}"
+          body: |
+            ## 📦 Cross-platform Binaries
+            
+            This release contains pre-built binaries for:
+            - macOS (x86_64, aarch64/Apple Silicon)  
+            - Windows (x86_64)
+            
+            ### 🚀 Quick Start
+            1. Download the appropriate binary for your platform
+            2. Extract the archive
+            3. Run the binary
+            
+            **Commit:** ${{ github.sha }}
+            **Build:** #${{ github.run_number }}
           draft: false
           prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
