@@ -1,0 +1,61 @@
+[package]
+name = "svbony-ai-assistant"
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "SVBONY AI Assistant - Monitor AI button and execute configured actions"
+license = "MIT"
+
+[dependencies]
+nix = { version = "0.27", features = ["process", "signal"] }
+libc = "0.2"
+# HID device communication
+hidapi = "2.6"
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+# Configuration management
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+# Cross-platform system operations
+open = "5.1"
+# Logging
+log = "0.4"
+env_logger = "0.11"
+# Error handling
+anyhow = "1.0"
+# Cross-platform directories
+dirs = "5.0"
+# Command line argument parsing
+clap = { version = "4.4", features = ["derive"] }
+# System tray support
+tray-icon = "0.14"
+# Cross-platform window/notification management
+winit = "0.29"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winuser", "shellapi", "winerror", "winreg", "consoleapi", "handleapi", "processthreadsapi", "wincon", "processenv", "winbase"] }
+windows-service = "0.6"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+cocoa = "0.25"
+objc = "0.2"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Linux specific dependencies for autostart
+xdg = "2.5"
+
+[[bin]]
+name = "svbony-ai-assistant"
+path = "src/main.rs"
+
+[profile.release]
+# 优化二进制大小并设置Windows子系统
+strip = true
+lto = true
+codegen-units = 1
+panic = "abort"
+
+# Windows specific build configuration to create a Windows subsystem binary
+# This helps reduce console window flashing
+[target.'cfg(windows)'.build]
+rustflags = ["-C", "link-arg=/SUBSYSTEM:WINDOWS"]
