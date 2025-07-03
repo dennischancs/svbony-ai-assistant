@@ -27,7 +27,7 @@ SVBONY AI Assistant 是一款用于监控 SVBONY SVHub Omni2P 设备的 AI 按�
 
 #### 克隆代码仓库
 ```bash
-git clone <仓库地址>
+git clone https://github.com/dennischancs/svbony-ai-assistant.git
 cd svbony-ai-assistant
 ```
 

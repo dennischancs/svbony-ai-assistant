@@ -27,7 +27,7 @@ Ensure that you have installed the Rust development environment. If not, you can
 
 #### Clone the Code Repository
 ```bash
-git clone <repository URL>
+git clone https://github.com/dennischancs/svbony-ai-assistant.git
 cd svbony-ai-assistant
 ```
 
