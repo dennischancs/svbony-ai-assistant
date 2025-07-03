@@ -1,0 +1,195 @@
+name: Cross-platform Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build for ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux targets (commented out)
+          # - os: ubuntu-latest
+          #   target: x86_64-unknown-linux-gnu
+          #   arch: x86_64
+          #   platform: linux
+          # - os: ubuntu-latest
+          #   target: aarch64-unknown-linux-gnu
+          #   arch: aarch64
+          #   platform: linux
+          
+          # macOS targets
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            arch: x86_64
+            platform: macos
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            arch: aarch64
+            platform: macos
+          
+          # Windows targets
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            arch: x86_64
+            platform: windows
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Install cross-compilation tools (Linux aarch64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Configure cross-compilation (Linux aarch64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          echo "[target.aarch64-unknown-linux-gnu]" >> ~/.cargo/config.toml
+          echo "linker = \"aarch64-linux-gnu-gcc\"" >> ~/.cargo/config.toml
+
+      - name: Build project
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Get binary name
+        id: binary_name
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform }}" == "windows" ]; then
+            echo "name=svbony-ai-assistant.exe" >> $GITHUB_OUTPUT
+          else
+            echo "name=svbony-ai-assistant" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Package artifacts
+        shell: bash
+        run: |
+          mkdir -p dist
+          binary_path="target/${{ matrix.target }}/release/${{ steps.binary_name.outputs.name }}"
+          
+          if [ -f "$binary_path" ]; then
+            # 创建发布包
+            release_name="svbony-ai-assistant-${{ matrix.platform }}-${{ matrix.arch }}"
+            mkdir -p "dist/$release_name"
+            cp "$binary_path" "dist/$release_name/"
+            
+            # 添加 README 或其他文档（如果存在）
+            if [ -f "README.md" ]; then
+              cp "README.md" "dist/$release_name/"
+            fi
+            
+            # 创建压缩包
+            cd dist
+            if [ "${{ matrix.platform }}" == "windows" ]; then
+              7z a "${release_name}.zip" "$release_name"
+            else
+              tar -czf "${release_name}.tar.gz" "$release_name"
+            fi
+            cd ..
+          else
+            echo "Binary not found at $binary_path"
+            exit 1
+          fi
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-binary
+          path: dist/svbony-ai-assistant-${{ matrix.platform }}-${{ matrix.arch }}/
+
+      - name: Upload release package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-release
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+
+  # 创建 GitHub Release
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write  # 需要写权限来创建 release
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          
+      - name: Display structure of downloaded files
+        run: ls -la artifacts/
+        
+      - name: Prepare release files
+        run: |
+          mkdir -p release-files
+          find artifacts/ -name "*.tar.gz" -o -name "*.zip" | head -10 | while read file; do
+            if [ -f "$file" ]; then
+              echo "Found: $file"
+              cp "$file" release-files/
+            fi
+          done
+          ls -la release-files/
+        
+      - name: Generate tag name
+        id: tag
+        run: |
+          # 使用时间戳创建唯一标签
+          TAG="v$(date +'%Y%m%d-%H%M%S')"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Generated tag: $TAG"
+        
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-files/*
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Release ${{ steps.tag.outputs.tag }}"
+          body: |
+            ## 📦 Cross-platform Binaries
+            
+            This release contains pre-built binaries for:
+            - macOS (x86_64, aarch64/Apple Silicon)  
+            - Windows (x86_64)
+            
+            ### 🚀 Quick Start
+            1. Download the appropriate binary for your platform
+            2. Extract the archive
+            3. Run the binary
+            
+            **Commit:** ${{ github.sha }}
+            **Build:** #${{ github.run_number }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
