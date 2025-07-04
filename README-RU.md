@@ -2,8 +2,11 @@
 
 🇺🇸 [English](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README.md) | 🇫🇷 [Français](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-FR.md) | 🇩🇪 [Deutsch](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-DE.md) | 🇮🇹 [Italiano](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-IT.md) | 🇪🇸 [Español](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-ES.md) | 🇷🇺 [Русский](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-RU.md) | 🇵🇹 [Português](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-PT.md) | 🇯🇵 [日本語](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-JP.md) | 🇨🇳 [简体中文](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-CN.md)
 
-## Скачать последние версии
-[Скачать с GitHub Releases](https://github.com/dennischancs/svbony-ai-assistant/releases/latest)
+#### Быстрый старт
+
+1. Скачайте соответствующий бинарный файл с [страницы релизов GitHub](https://github.com/dennischancs/svbony-ai-assistant/releases/latest) для вашей платформы, например: macOS (x86_64, aarch64/Apple Silicon), Windows (x86_64)
+2. Извлеките архив
+3. Запустите бинарный файл
 
 ## Введение
 ИИ-Помощник SVBONY - это инструмент, предназначенный для мониторинга событий нажатия кнопки ИИ на устройстве SVBONY SVHub Omni2P и выполнения настроенных действий, таких как открытие URL-адресов, выполнение команд или отображение уведомлений. Этот инструмент поддерживает системы Windows и macOS и может быть настроен для автоматического запуска при загрузке системы.

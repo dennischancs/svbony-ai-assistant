@@ -2,8 +2,11 @@
 
 🇺🇸 [English](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README.md) | 🇫🇷 [Français](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-FR.md) | 🇩🇪 [Deutsch](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-DE.md) | 🇮🇹 [Italiano](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-IT.md) | 🇪🇸 [Español](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-ES.md) | 🇷🇺 [Русский](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-RU.md) | 🇵🇹 [Português](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-PT.md) | 🇯🇵 [日本語](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-JP.md) | 🇨🇳 [简体中文](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-CN.md)
 
-## Télécharger les dernières versions
-[Télécharger depuis GitHub Releases](https://github.com/dennischancs/svbony-ai-assistant/releases/latest)
+#### Démarrage Rapide
+
+1. Téléchargez le binaire approprié à partir des [Releases GitHub](https://github.com/dennischancs/svbony-ai-assistant/releases/latest) pour votre plateforme, par exemple : macOS (x86_64, aarch64/Apple Silicon), Windows (x86_64)
+2. Extraire l'archive
+3. Exécuter le binaire
 
 ## Introduction
 L'Assistant IA SVBONY est un outil conçu pour surveiller les événements de pression du bouton IA sur le dispositif SVBONY SVHub Omni2P et exécuter des actions configurées telles que l'ouverture d'URL, l'exécution de commandes ou l'affichage de notifications. Cet outil prend en charge les systèmes Windows et macOS et peut être configuré pour démarrer automatiquement au démarrage du système.

@@ -2,8 +2,11 @@
 
 🇺🇸 [English](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README.md) | 🇫🇷 [Français](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-FR.md) | 🇩🇪 [Deutsch](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-DE.md) | 🇮🇹 [Italiano](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-IT.md) | 🇪🇸 [Español](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-ES.md) | 🇷🇺 [Русский](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-RU.md) | 🇵🇹 [Português](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-PT.md) | 🇯🇵 [日本語](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-JP.md) | 🇨🇳 [简体中文](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-CN.md)
 
-## 最新版リリースのダウンロード
-[GitHub Releasesからダウンロード](https://github.com/dennischancs/svbony-ai-assistant/releases/latest)
+#### クイックスタート
+
+1. [GitHub リリースページ](https://github.com/dennischancs/svbony-ai-assistant/releases/latest) からプラットフォームに合わせたバイナリファイルをダウンロードしてください。例：macOS（x86_64、aarch64/Apple Silicon）、Windows（x86_64）
+2. アーカイブを解凍します
+3. バイナリファイルを実行します
 
 ## 概要
 SVBONY AI Assistantは、SVBONY SVHub Omni2P デバイスのAIボタン押下イベントを監視し、URL の開く、コマンドの実行、通知の表示などの設定されたアクションを実行するツールです。このツールは Windows、macOS システムをサポートし、システム起動時に自動的に開始するように設定できます。

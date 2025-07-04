@@ -2,8 +2,11 @@
 
 🇺🇸 [English](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README.md) | 🇫🇷 [Français](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-FR.md) | 🇩🇪 [Deutsch](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-DE.md) | 🇮🇹 [Italiano](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-IT.md) | 🇪🇸 [Español](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-ES.md) | 🇷🇺 [Русский](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-RU.md) | 🇵🇹 [Português](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-PT.md) | 🇯🇵 [日本語](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-JP.md) | 🇨🇳 [简体中文](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-CN.md)
 
-## 最新版下载地址
-[最新版下载地址](https://github.com/dennischancs/svbony-ai-assistant/releases/latest)
+### 快速入门
+
+1. 从 [GitHub 版本页](https://github.com/dennischancs/svbony-ai-assistant/releases/latest) 为您的平台下载对应的二进制文件，例如：macOS（x86_64、aarch64/Apple Silicon）、Windows（x86_64）
+2. 解压压缩包
+3. 运行二进制文件
 
 ## 简介
 SVBONY AI Assistant 是一款用于监控 SVBONY SVHub Omni2P 设备的 AI 按钮按下事件，并执行如打开 URL、运行命令或显示通知等配置操作的工具。本工具支持在 Windows、macOS系统上运行，并且可以配置为开机自动启动。
