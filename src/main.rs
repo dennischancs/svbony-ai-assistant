@@ -22,7 +22,8 @@ use autostart::AutostartManager;
 
 // SVBONY SVHub Omni2P device identifiers
 const VENDOR_ID: u16 = 0xe2b7;
-const PRODUCT_ID: u16 = 0x364d;
+// const PRODUCT_ID: u16 = 0x364d;
+const PRODUCT_ID: u16 = 0x5053;
 
 // Expected HID data pattern for AI button
 const AI_BUTTON_PATTERN: &[u8] = &[

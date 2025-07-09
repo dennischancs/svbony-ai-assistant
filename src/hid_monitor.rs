@@ -154,7 +154,8 @@ mod tests {
 
     #[test]
     fn test_ai_button_pattern_recognition() {
-        let monitor = HidMonitor::new(0xe2b7, 0x364d).unwrap();
+        // let monitor = HidMonitor::new(0xe2b7, 0x364d).unwrap();
+        let monitor = HidMonitor::new(0xe2b7, 0x5053).unwrap();
         
         // Test valid AI button report
         let valid_report = HidReport {
@@ -198,7 +199,8 @@ mod tests {
 
     #[test]
     fn test_validate_hid_data() {
-        let monitor = HidMonitor::new(0xe2b7, 0x364d).unwrap();
+        // let monitor = HidMonitor::new(0xe2b7, 0x364d).unwrap();
+        let monitor = HidMonitor::new(0xe2b7, 0x5053).unwrap();
         
         let data = [0x04, 0xb2, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00];
         let pattern = [0x04, 0xb2, 0x00, 0x00];
@@ -211,7 +213,8 @@ mod tests {
 
     #[test]
     fn test_parse_hid_report() {
-        let monitor = HidMonitor::new(0xe2b7, 0x364d).unwrap();
+        // let monitor = HidMonitor::new(0xe2b7, 0x364d).unwrap();
+        let monitor = HidMonitor::new(0xe2b7, 0x5053).unwrap();
         
         let data = [0x04, 0xb2, 0x00, 0x00, 0x01];
         let report = monitor.parse_hid_report(&data).unwrap();
