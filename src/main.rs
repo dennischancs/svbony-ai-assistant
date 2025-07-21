@@ -20,10 +20,11 @@ use cli::CliArgs;
 
 use autostart::AutostartManager;
 
-// SVBONY SVHub Omni2P device identifiers
+// SVBONY SVHub device identifiers
 const VENDOR_ID: u16 = 0xe2b7;
-// const PRODUCT_ID: u16 = 0x364d;
-const PRODUCT_ID: u16 = 0x5053;
+// PID for M6 and Omni2P devices
+const M6_PRODUCT_ID: u16 = 0x364d; // SiBiChi
+const OMNI2P_PRODUCT_ID: u16 = 0x5053; // YSAIR
 
 // Expected HID data pattern for AI button
 const AI_BUTTON_PATTERN: &[u8] = &[
@@ -114,6 +115,12 @@ async fn main() -> Result<()> {
     // Initialize application state
     let app_state = AppState::new(cli_args)
         .context("Failed to initialize application state")?;
+    
+    // Log configuration version information
+    {
+        let config_guard = app_state.config.lock().unwrap();
+        info!("配置文件版本: {}", config_guard.version);
+    }
 
     // Setup autostart on first run if enabled in config
     setup_autostart_on_first_run(&app_state).await?;
@@ -156,8 +163,8 @@ async fn main() -> Result<()> {
         info!("Running in foreground mode");
     }
 
-    // Initialize HID monitor
-    let hid_monitor = HidMonitor::new(VENDOR_ID, PRODUCT_ID)
+    // Initialize HID monitor with both PIDs
+    let hid_monitor = HidMonitor::new_multi_pid(VENDOR_ID, vec![M6_PRODUCT_ID, OMNI2P_PRODUCT_ID])
         .context("Failed to initialize HID monitor")?;
 
     {
@@ -166,7 +173,8 @@ async fn main() -> Result<()> {
     }
 
     info!("SVBONY AI Assistant started successfully");
-    info!("Monitoring for SVBONY SVHub Omni2P (VID: {:04x}, PID: {:04x})", VENDOR_ID, PRODUCT_ID);
+    info!("Monitoring for SVBONY devices (VID: {:04x}, PIDs: [{:04x}, {:04x}])", 
+           VENDOR_ID, M6_PRODUCT_ID, OMNI2P_PRODUCT_ID);
 
     // Show additional info in foreground mode
     if !background_service.is_background() {
@@ -300,7 +308,7 @@ async fn monitor_hid_device(app_state: AppState) {
         if device.is_none() && last_connection_attempt.elapsed() > Duration::from_secs(5) {
             match connect_to_device().await {
                 Ok(hid_device) => {
-                    info!("Connected to SVBONY SVHub Omni2P device");
+                    info!("Connected to SVBONY device");
                     device = Some(hid_device);
                 }
                 Err(e) => {
@@ -332,8 +340,25 @@ async fn connect_to_device() -> Result<HidDevice> {
     let api = HidApi::new()
         .context("Failed to initialize HID API")?;
 
-    let device = api.open(VENDOR_ID, PRODUCT_ID)
-        .context("Failed to open SVBONY device")?;
+    // Try to connect to M6 first
+    let device = match api.open(VENDOR_ID, M6_PRODUCT_ID) {
+        Ok(device) => {
+            info!("Connected to SVBONY M6 device (PID: {:04x})", M6_PRODUCT_ID);
+            device
+        },
+        Err(_) => {
+            // If M6 not found, try Omni2P
+            match api.open(VENDOR_ID, OMNI2P_PRODUCT_ID) {
+                Ok(device) => {
+                    info!("Connected to SVBONY Omni2P device (PID: {:04x})", OMNI2P_PRODUCT_ID);
+                    device
+                },
+                Err(e) => {
+                    return Err(anyhow::anyhow!("Failed to open any SVBONY device: {}", e));
+                }
+            }
+        }
+    };
 
     // Set non-blocking mode
     device.set_blocking_mode(false)

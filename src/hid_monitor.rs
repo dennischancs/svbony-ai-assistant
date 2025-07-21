@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 #[derive(Debug)] // Added Debug derive
 pub struct HidMonitor {
     vendor_id: u16,
-    product_id: u16,
+    product_ids: Vec<u16>,
     last_scan: Instant,
     scan_interval: Duration,
 }
@@ -15,7 +15,16 @@ impl HidMonitor {
     pub fn new(vendor_id: u16, product_id: u16) -> Result<Self> {
         Ok(HidMonitor {
             vendor_id,
-            product_id,
+            product_ids: vec![product_id],
+            last_scan: Instant::now(),
+            scan_interval: Duration::from_secs(5),
+        })
+    }
+
+    pub fn new_multi_pid(vendor_id: u16, product_ids: Vec<u16>) -> Result<Self> {
+        Ok(HidMonitor {
+            vendor_id,
+            product_ids,
             last_scan: Instant::now(),
             scan_interval: Duration::from_secs(5),
         })
@@ -34,9 +43,10 @@ impl HidMonitor {
 
         for device_info in api.device_list() {
             if device_info.vendor_id() == self.vendor_id && 
-               device_info.product_id() == self.product_id {
+               self.product_ids.contains(&device_info.product_id()) {
                 
-                info!("Found SVBONY device: {:?}", device_info.product_string());
+                info!("Found SVBONY device: {:?} (PID: {:04x})", 
+                      device_info.product_string(), device_info.product_id());
                 debug!("Device path: {:?}", device_info.path());
                 debug!("Manufacturer: {:?}", device_info.manufacturer_string());
                 debug!("Serial: {:?}", device_info.serial_number());
@@ -45,8 +55,8 @@ impl HidMonitor {
             }
         }
 
-        debug!("SVBONY device not found (VID: {:04x}, PID: {:04x})", 
-               self.vendor_id, self.product_id);
+        debug!("SVBONY device not found (VID: {:04x}, PIDs: {:04x?})", 
+               self.vendor_id, self.product_ids);
         Ok(None)
     }
 

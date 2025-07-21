@@ -1,96 +1,96 @@
-# SVBONY AI-Assistent Nutzungsanleitung
+# SVBONY AI Assistant Benutzerhandbuch
 
 🇺🇸 [English](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README.md) | 🇫🇷 [Français](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-FR.md) | 🇩🇪 [Deutsch](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-DE.md) | 🇮🇹 [Italiano](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-IT.md) | 🇪🇸 [Español](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-ES.md) | 🇷🇺 [Русский](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-RU.md) | 🇵🇹 [Português](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-PT.md) | 🇯🇵 [日本語](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-JP.md) | 🇨🇳 [简体中文](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-CN.md)
 
-#### Schnellstart
+### Schnellstart
 
-1. Laden Sie die passende Binärdatei von der [GitHub-Releases-Seite](https://github.com/dennischancs/svbony-ai-assistant/releases/latest) für Ihre Plattform herunter, z.B.: macOS (x86_64, aarch64/Apple Silicon), Windows (x86_64)
-2. Entpacken Sie das Archiv
-3. Führen Sie die Binärdatei aus
+1. [Laden Sie das passende Binary von GitHub Releases herunter](https://github.com/dennischancs/svbony-ai-assistant/releases/latest) für Ihr System (macOS x86_64, aarch64/Apple Silicon, Windows x86_64)
+2. Archiv entpacken
+3. Binary ausführen
+
+## Unterstützte Geräte
+- SVBONY SVHub Omni2P (PID: 0x5053)
+- SVBONY SVHub M6 (PID: 0x364d)
 
 ## Einführung
-Der SVBONY AI-Assistent ist ein Tool, das entwickelt wurde, um die AI-Tastenereignisse auf dem SVBONY SVHub Omni2P-Gerät zu überwachen und konfigurierte Aktionen wie das Öffnen von URLs, das Ausführen von Befehlen oder das Anzeigen von Benachrichtigungen durchzuführen. Dieses Tool unterstützt Windows- und macOS-Systeme und kann so konfiguriert werden, dass es beim Systemstart automatisch startet.
+Der SVBONY AI Assistant überwacht die AI-Taste auf unterstützten SVBONY-Geräten und führt konfigurierte Aktionen aus (z.B. URLs öffnen, Befehle ausführen, Tasten senden (Platzhalter), Benachrichtigungen anzeigen). Unterstützt Windows, macOS und kann für den Autostart konfiguriert werden.
 
 ## Funktionen
-- Überwachung von AI-Tastenereignissen auf dem SVBONY SVHub Omni2P-Gerät.
-- Unterstützung mehrerer Aktionen, einschließlich des Öffnens von URLs, Ausführens von Befehlen, Sendens von Tastenanschlägen und Anzeigen von Benachrichtigungen.
-- Unterstützung für das Ausführen im Hinter- oder Vordergrund.
-- Unterstützung für automatischen Start beim Systemstart.
+- Überwachung der AI-Taste auf SVBONY SVHub Omni2P und M6.
+- Unterstützt mehrere Aktionen: URLs öffnen, Befehle ausführen, Tasten senden (Platzhalter), Benachrichtigungen anzeigen.
+- Betrieb im Hintergrund (Daemon) oder Vordergrund (mit Logs).
+- Automatischer Start beim Systemstart (konfigurierbar, beim ersten Start automatisch eingerichtet, falls aktiviert).
+- Einzelinstanz-Prüfung im Hintergrundmodus.
+- Sauberes Beenden über Systemsignale (Ctrl+C, SIGTERM).
 - Detaillierte Konfiguration und Protokollierung.
+- Plattformübergreifende Benachrichtigungen (Windows Toast, macOS osascript).
 
-## Installation und Verwendung
+## Installation und Nutzung
 
-### Installation aus vorkompilierten Binärdateien
-Wenn Sie den Code nicht selbst kompilieren möchten, können Sie die vorkompilierten Binärdateien direkt herunterladen und diese Schritte befolgen:
-1. Laden Sie die für Ihr Betriebssystem geeignete Binärdatei herunter.
-2. Extrahieren Sie die heruntergeladene Datei.
-3. Öffnen Sie ein Terminal oder eine Eingabeaufforderung und navigieren Sie zum extrahierten Verzeichnis.
-4. Führen Sie den Befehl `svbony-ai-assistant` aus, um das Programm zu starten.
+### Installation aus vorgefertigten Binaries
+1. Passendes Binary für Ihr Betriebssystem herunterladen.
+2. Archiv entpacken.
+3. Terminal öffnen, in das Verzeichnis wechseln.
+4. `svbony-ai-assistant` ausführen.
 
 ### Kompilierung aus dem Quellcode
-Wenn Sie das Programm aus dem Quellcode kompilieren möchten, können Sie diese Schritte befolgen:
+Stellen Sie sicher, dass Rust installiert ist ([offizielle Seite](https://www.rust-lang.org/tools/install)).
 
-#### Umgebungsvorbereitung
-Stellen Sie sicher, dass Sie die Rust-Entwicklungsumgebung installiert haben. Wenn nicht, können Sie sie von der [offiziellen Rust-Website](https://www.rust-lang.org/tools/install) herunterladen und installieren.
-
-#### Code-Repository klonen
 ```bash
 git clone https://github.com/dennischancs/svbony-ai-assistant.git
 cd svbony-ai-assistant
-```
-
-#### Programm kompilieren
-```bash
 cargo build --release
 ```
-Nach der Kompilierung befindet sich die ausführbare Datei im Verzeichnis `target/release`.
+Das Binary befindet sich danach in `target/release`.
 
-### Programm ausführen
-Nach der Kompilierung können Sie das Programm mit folgendem Befehl ausführen:
+### Ausführung
 ```bash
 ./target/release/svbony-ai-assistant
 ```
 
-## Befehlszeilenargumente
+## Kommandozeilenargumente
 | Argument | Beschreibung |
 | ---- | ---- |
-| `-f, --foreground` | Im Vordergrundmodus ausführen, alle Protokollmeldungen in der Konsole anzeigen und die Anwendung am Terminal anhängen. Geeignet für Debugging oder manuelle Überwachung. |
-| `-b, --background` | Im Hintergrundmodus als Daemon-Prozess ausführen. Die Anwendung wird sich vom Terminal trennen und still im Hintergrund laufen. Dies ist das Standardverhalten beim Start über eine GUI. |
-| `--enable-autostart` | Die Anwendung so konfigurieren, dass sie automatisch beim Systemstart startet. Dies erstellt die notwendigen Autostart-Einträge für Ihr Betriebssystem. |
-| `--disable-autostart` | Die Anwendung vom automatischen Start entfernen. Die Anwendung wird nicht automatisch beim Systemstart starten. |
-| `-c, --show-config` | Den aktuellen Konfigurationsdateipfad und -inhalt anzeigen, dann beenden ohne den Überwachungsdienst zu starten. |
-| `-v, --verbose` | Ausführliche Protokollausgabe aktivieren. Dies zeigt Debug-Meldungen und detaillierte Informationen über die Gerätekommunikation. |
-| `-q, --quiet` | Im stillen Modus ausführen, alle Protokollausgaben außer Fehlermeldungen unterdrücken. |
-| `-V, --version` | Versionsinformationen anzeigen. |
+| `-f, --foreground` | Im Vordergrund ausführen, Logausgaben in der Konsole. |
+| `-b, --background` | Im Hintergrund (Daemon) ausführen. Standard bei GUI-Start. |
+| `--enable-autostart` | Autostart beim Systemstart aktivieren. |
+| `--disable-autostart` | Autostart deaktivieren. |
+| `-c, --show-config` | Zeigt den Pfad und Inhalt der Konfiguration an und beendet das Programm. |
+| `-r, --regenerate-config` | Setzt die Konfiguration auf Werkseinstellungen zurück (alte wird gesichert). |
+| `-v, --verbose` | Ausführliche Logausgabe aktivieren. |
+| `-q, --quiet` | Nur Fehler ausgeben. |
+| `-V, --version` | Versionsinformation anzeigen. |
 
-### Verwendungsbeispiele
+### Beispiele
 ```bash
-# Im Vordergrundmodus mit ausführlicher Protokollierung ausführen
 ./target/release/svbony-ai-assistant --foreground --verbose
-
-# Im Hintergrundmodus ausführen und automatischen Start aktivieren
 ./target/release/svbony-ai-assistant --enable-autostart
 ./target/release/svbony-ai-assistant
-
-# Aktuelle Konfiguration anzeigen
 ./target/release/svbony-ai-assistant --show-config
+./target/release/svbony-ai-assistant --regenerate-config
 ```
 
+## Aktionstypen
+- `OpenUrl`: Öffnet eine URL im Standardbrowser.
+- `RunCommand`: Führt einen Systembefehl aus.
+- `SendKeys`: (Platzhalter) Simuliert Tastendrücke (noch nicht implementiert).
+- `ShowNotification`: Zeigt eine Systembenachrichtigung an.
+
 ## Konfigurationsdatei
-Die Konfigurationsdatei wird verwendet, um das Verhalten und die Aktionen der Anwendung zu definieren. Die Konfigurationsdatei kann sich in den folgenden Speicherorten befinden:
+Die Konfigurationsdatei definiert das Verhalten der Anwendung. Sie kann sich befinden unter:
 - **Windows**: `%APPDATA%\SVBONY-AI-Assistant\config.json`
 - **macOS**: `~/Library/Application Support/SVBONY-AI-Assistant/config.json`
-- Oder `config.json` im selben Verzeichnis wie die ausführbare Datei
+- oder im selben Verzeichnis wie das Binary
 
-Wenn die Konfigurationsdatei nicht existiert, verwendet die Anwendung die Standardkonfiguration und erstellt eine Konfigurationsdatei am oben genannten Speicherort.
+Fehlt die Datei, wird eine Standardkonfiguration erstellt.
 
-### Beispiel einer Konfigurationsdatei
+### Beispiel
 ```json
 {
   "actions": [
     {
-      "name": "app.notta.ai öffnen",
-      "action_type": "OpenUrl",
+      "name": "Open app.notta.ai",
+      "action_type": "OpenUrl", // Optionen: OpenUrl, RunCommand, SendKeys, ShowNotification
       "parameters": {
         "url": "https://app.notta.ai",
         "command": null,
@@ -102,15 +102,15 @@ Wenn die Konfigurationsdatei nicht existiert, verwendet die Anwendung die Standa
       "enabled": true
     },
     {
-      "name": "AI-Assistent-Benachrichtigung anzeigen",
+      "name": "Show AI Assistant Notification",
       "action_type": "ShowNotification",
       "parameters": {
         "url": null,
         "command": null,
         "args": null,
         "keys": null,
-        "message": "AI-Assistent aktiviert!",
-        "title": "SVBONY AI-Assistent"
+        "message": "AI Assistant aktiviert!",
+        "title": "SVBONY AI Assistant"
       },
       "enabled": true
     }
@@ -120,31 +120,37 @@ Wenn die Konfigurationsdatei nicht existiert, verwendet die Anwendung die Standa
     "minimize_to_tray": true,
     "log_level": "info",
     "check_updates": true
-  }
+  },
+  "version": "0.1.0"
 }
 ```
 
-## Konfiguration des automatischen Starts
-Sie können die Argumente `--enable-autostart` und `--disable-autostart` verwenden, um die automatische Startfunktion der Anwendung zu aktivieren oder zu deaktivieren. Zum Beispiel:
-```bash
-# Automatischen Start aktivieren
-./target/release/svbony-ai-assistant --enable-autostart
+### Versionskompatibilität
+Das Feld `version` in der Konfiguration muss zur Programmversion passen. Bei einem Update:
+- Wenn die Version nicht passt, wird automatisch:
+  1. Die alte Konfiguration als `config.json.old` gesichert
+  2. Eine neue Standardkonfiguration erstellt
+- Die alte Datei bleibt als Backup erhalten.
 
-# Automatischen Start deaktivieren
-./target/release/svbony-ai-assistant --disable-autostart
-```
+## Autostart
+- Ist `auto_start` aktiviert, wird Autostart beim ersten Start automatisch eingerichtet.
+- Sie können Autostart auch manuell mit `--enable-autostart` und `--disable-autostart` steuern.
+
+## Benachrichtigungen
+- **Windows**: Toast-Benachrichtigungen (PowerShell), alternativ Ballon.
+- **macOS**: `osascript`.
+- **Linux**: `notify-send` oder `zenity`.
 
 ## Fehlerbehebung
-- **Protokollierung**: Sie können das Argument `--verbose` verwenden, um ausführliche Protokollierung für bessere Fehlerbehebung zu aktivieren.
-- **Einzelinstanz-Überprüfung**: Wenn die Anwendung nicht startet, kann dies daran liegen, dass bereits eine andere Instanz läuft. Sie können das Argument `--foreground` verwenden, um mehrere Instanzen für Debugging zu starten.
-- **Konfigurationsdatei-Probleme**: Bei Problemen mit der Konfigurationsdatei können Sie versuchen, die Konfigurationsdatei zu löschen und die Anwendung neu zu starten. Die Anwendung wird die Standardkonfiguration verwenden und die Konfigurationsdatei neu erstellen.
+- **Logs**: Mit `--verbose` erhalten Sie detaillierte Ausgaben.
+- **Einzelinstanz-Prüfung**: Im Hintergrundmodus kann ein Startfehler bedeuten, dass bereits eine Instanz läuft. Nutzen Sie `--foreground` zum Debuggen.
+- **Konfigurationsprobleme**: Löschen Sie die Konfigurationsdatei und starten Sie neu, um eine Standardkonfiguration zu erhalten.
 
 ## Beitrag
-Wenn Sie zum SVBONY AI-Assistent-Projekt beitragen möchten, befolgen Sie bitte diese Schritte:
-1. Code-Repository klonen.
-2. Einen neuen Branch erstellen.
-3. Änderungen vornehmen und testen.
-4. Eine Pull-Request einreichen.
+1. Repository klonen.
+2. Branch erstellen.
+3. Änderungen und Tests durchführen.
+4. Pull Request einreichen.
 
 ## Lizenz
-Dieses Projekt ist unter der MIT-Lizenz lizenziert. Für Details siehe die Datei [LICENSE](LICENSE).
+Dieses Projekt steht unter der MIT-Lizenz. Siehe [LICENSE](LICENSE).

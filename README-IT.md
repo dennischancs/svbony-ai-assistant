@@ -2,21 +2,28 @@
 
 🇺🇸 [English](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README.md) | 🇫🇷 [Français](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-FR.md) | 🇩🇪 [Deutsch](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-DE.md) | 🇮🇹 [Italiano](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-IT.md) | 🇪🇸 [Español](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-ES.md) | 🇷🇺 [Русский](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-RU.md) | 🇵🇹 [Português](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-PT.md) | 🇯🇵 [日本語](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-JP.md) | 🇨🇳 [简体中文](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-CN.md)
 
-#### Avvio Rapido
+### Avvio Rapido
 
 1. Scarica il binario appropriato dalle [Releases di GitHub](https://github.com/dennischancs/svbony-ai-assistant/releases/latest) per la tua piattaforma, ad esempio: macOS (x86_64, aarch64/Apple Silicon), Windows (x86_64)
 2. Scompatta l'archivio
 3. Esegui il binario
 
+## Dispositivi supportati
+- SVBONY SVHub Omni2P (PID: 0x5053)
+- SVBONY SVHub M6 (PID: 0x364d)
+
 ## Introduzione
-L'Assistente IA SVBONY è uno strumento progettato per monitorare gli eventi di pressione del pulsante IA sul dispositivo SVBONY SVHub Omni2P ed eseguire azioni configurate come l'apertura di URL, l'esecuzione di comandi o la visualizzazione di notifiche. Questo strumento supporta i sistemi Windows e macOS e può essere configurato per avviarsi automaticamente all'avvio del sistema.
+L'Assistente IA SVBONY è uno strumento progettato per monitorare gli eventi di pressione del pulsante IA sui dispositivi SVBONY supportati ed eseguire azioni configurate come l'apertura di URL, l'esecuzione di comandi, l'invio di sequenze di tasti (in sviluppo) o la visualizzazione di notifiche. Questo strumento supporta sistemi Windows, macOS e può essere configurato per avviarsi automaticamente all'avvio del sistema.
 
 ## Funzionalità
-- Monitorare gli eventi di pressione del pulsante IA sul dispositivo SVBONY SVHub Omni2P.
-- Supportare multiple azioni, inclusa l'apertura di URL, l'esecuzione di comandi, l'invio di sequenze di tasti e la visualizzazione di notifiche.
-- Supportare l'esecuzione in background o in primo piano.
-- Supportare l'avvio automatico all'avvio del sistema.
+- Monitorare gli eventi di pressione del pulsante IA sui dispositivi SVBONY SVHub Omni2P e M6.
+- Supportare multiple azioni: apertura di URL, esecuzione di comandi, invio di sequenze di tasti (in sviluppo), visualizzazione di notifiche.
+- Supportare l'esecuzione in background (daemon) o in primo piano (con log).
+- Avvio automatico all'avvio del sistema (configurabile, e auto-configurazione al primo avvio se abilitato).
+- Controllo istanza singola in modalità background.
+- Arresto sicuro tramite segnali di sistema (Ctrl+C, SIGTERM).
 - Configurazione e registrazione dettagliate.
+- Supporto notifiche multipiattaforma (Windows Toast, macOS osascript).
 
 ## Installazione e utilizzo
 
@@ -59,6 +66,7 @@ Dopo la compilazione, puoi eseguire il programma utilizzando il seguente comando
 | `--enable-autostart` | Configurare l'applicazione per avviarsi automaticamente quando il sistema si avvia. Questo creerà le voci di avvio automatico necessarie per il tuo sistema operativo. |
 | `--disable-autostart` | Rimuovere l'applicazione dall'avvio automatico. L'applicazione non si avvierà automaticamente quando il sistema si avvia. |
 | `-c, --show-config` | Visualizzare il percorso e il contenuto del file di configurazione corrente, quindi uscire senza avviare il servizio di monitoraggio. |
+| `-r, --regenerate-config` | Ripristinare i file di configurazione ai valori di fabbrica. Se esiste una configurazione di sistema, verrà eseguito un backup come config.json.old prima della sostituzione. Tutti i file config.json verranno ripristinati ai valori predefiniti. |
 | `-v, --verbose` | Abilitare l'output di registrazione dettagliato. Questo mostrerà i messaggi di debug e le informazioni dettagliate sulla comunicazione del dispositivo. |
 | `-q, --quiet` | Eseguire in modalità silenziosa, sopprimendo tutto l'output di log eccetto i messaggi di errore. |
 | `-V, --version` | Visualizzare le informazioni sulla versione. |
@@ -74,7 +82,16 @@ Dopo la compilazione, puoi eseguire il programma utilizzando il seguente comando
 
 # Visualizzare la configurazione corrente
 ./target/release/svbony-ai-assistant --show-config
+
+# Ripristinare la configurazione predefinita
+./target/release/svbony-ai-assistant --regenerate-config
 ```
+
+## Tipi di azione
+- `OpenUrl`: Apri un URL nel browser predefinito.
+- `RunCommand`: Esegui un comando di sistema con argomenti opzionali.
+- `SendKeys`: (In sviluppo) Simula la pressione di tasti.
+- `ShowNotification`: Mostra una notifica di sistema con titolo e messaggio.
 
 ## File di configurazione
 Il file di configurazione è utilizzato per definire il comportamento e le azioni dell'applicazione. Il file di configurazione può trovarsi nelle seguenti posizioni:
@@ -120,23 +137,30 @@ Se il file di configurazione non esiste, l'applicazione utilizzerà la configura
     "minimize_to_tray": true,
     "log_level": "info",
     "check_updates": true
-  }
+  },
+  "version": "0.1.0"
 }
 ```
 
-## Configurazione dell'avvio automatico
-Puoi utilizzare gli argomenti `--enable-autostart` e `--disable-autostart` per abilitare o disabilitare la funzione di avvio automatico dell'applicazione. Ad esempio:
-```bash
-# Abilitare l'avvio automatico
-./target/release/svbony-ai-assistant --enable-autostart
+### Compatibilità della versione
+Il file di configurazione include un campo `version` che corrisponde alla versione dell'applicazione. Quando aggiorni l'applicazione:
+- Se la versione del file di configurazione non corrisponde alla versione dell'applicazione, l'applicazione automaticamente:
+  1. Esegue un backup della configurazione esistente come `config.json.old`
+  2. Crea un nuovo file di configurazione con le impostazioni di fabbrica
+- Questo garantisce la compatibilità tra la tua configurazione e la versione dell'applicazione
+- Le vecchie impostazioni possono essere trovate nel file di backup se necessario
 
-# Disabilitare l'avvio automatico
-./target/release/svbony-ai-assistant --disable-autostart
-```
+## Configurazione dell'avvio automatico
+- Se `auto_start` è abilitato nella configurazione, l'applicazione tenterà di configurare l'avvio automatico al primo avvio.
+- Puoi anche abilitare/disabilitare manualmente l'avvio automatico tramite `--enable-autostart` e `--disable-autostart`.
+
+## Notifiche
+- **Windows**: Usa notifiche Toast (PowerShell), con alternativa alle notifiche balloon.
+- **macOS**: Usa `osascript` per le notifiche di sistema.
 
 ## Risoluzione dei problemi
 - **Registrazione**: Puoi utilizzare l'argomento `--verbose` per abilitare la registrazione dettagliata per una migliore risoluzione dei problemi.
-- **Controllo istanza singola**: Se l'applicazione non riesce ad avviarsi, potrebbe essere perché un'altra istanza è già in esecuzione. Puoi utilizzare l'argomento `--foreground` per avviare più istanze per il debugging.
+- **Controllo istanza singola**: Se l'applicazione non riesce ad avviarsi in modalità background, potrebbe essere perché un'altra istanza è già in esecuzione. Puoi utilizzare l'argomento `--foreground` per avviare più istanze per il debugging.
 - **Problemi del file di configurazione**: Se ci sono problemi con il file di configurazione, puoi provare a eliminare il file di configurazione e riavviare l'applicazione. L'applicazione utilizzerà la configurazione predefinita e ricreerà il file di configurazione.
 
 ## Contributo

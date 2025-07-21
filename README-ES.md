@@ -2,21 +2,28 @@
 
 🇺🇸 [English](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README.md) | 🇫🇷 [Français](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-FR.md) | 🇩🇪 [Deutsch](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-DE.md) | 🇮🇹 [Italiano](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-IT.md) | 🇪🇸 [Español](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-ES.md) | 🇷🇺 [Русский](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-RU.md) | 🇵🇹 [Português](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-PT.md) | 🇯🇵 [日本語](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-JP.md) | 🇨🇳 [简体中文](https://github.com/dennischancs/svbony-ai-assistant/blob/main/README-CN.md)
 
-#### Inicio Rápido
+### Inicio Rápido
 
 1. Descargue el binario adecuado desde las [Releases de GitHub](https://github.com/dennischancs/svbony-ai-assistant/releases/latest) para su plataforma, por ejemplo: macOS (x86_64, aarch64/Apple Silicon), Windows (x86_64)
 2. Extraiga el archivo comprimido
 3. Ejecute el binario
 
+## Dispositivos compatibles
+- SVBONY SVHub Omni2P (PID: 0x5053)
+- SVBONY SVHub M6 (PID: 0x364d)
+
 ## Introducción
-El Asistente IA SVBONY es una herramienta diseñada para monitorear los eventos de presión del botón IA en el dispositivo SVBONY SVHub Omni2P y ejecutar acciones configuradas como abrir URLs, ejecutar comandos o mostrar notificaciones. Esta herramienta es compatible con sistemas Windows y macOS y puede configurarse para iniciarse automáticamente al arrancar el sistema.
+El Asistente IA SVBONY es una herramienta diseñada para monitorear los eventos de presión del botón IA en los dispositivos SVBONY compatibles y ejecutar acciones configuradas como abrir URLs, ejecutar comandos, enviar pulsaciones de teclas (en desarrollo), o mostrar notificaciones. Esta herramienta es compatible con sistemas Windows, macOS, y puede configurarse para iniciarse automáticamente al arrancar el sistema.
 
 ## Características
-- Monitorear eventos de presión del botón IA en el dispositivo SVBONY SVHub Omni2P.
-- Soportar múltiples acciones, incluyendo abrir URLs, ejecutar comandos, enviar pulsaciones de teclas y mostrar notificaciones.
-- Soportar ejecución en segundo plano o primer plano.
-- Soportar inicio automático al arrancar el sistema.
+- Monitorear eventos de presión del botón IA en los dispositivos SVBONY SVHub Omni2P y M6.
+- Soportar múltiples acciones: abrir URLs, ejecutar comandos, enviar pulsaciones de teclas (en desarrollo), mostrar notificaciones.
+- Soportar ejecución en segundo plano (daemon) o primer plano (con logs).
+- Inicio automático al arrancar el sistema (configurable, y auto-configuración en el primer inicio si está habilitado).
+- Comprobación de instancia única en modo background.
+- Apagado seguro mediante señales del sistema (Ctrl+C, SIGTERM).
 - Configuración y registro detallados.
+- Soporte de notificaciones multiplataforma (Windows Toast, macOS osascript).
 
 ## Instalación y uso
 
@@ -59,6 +66,7 @@ Después de la compilación, puedes ejecutar el programa usando el siguiente com
 | `--enable-autostart` | Configurar la aplicación para iniciarse automáticamente cuando el sistema arranque. Esto creará las entradas de inicio automático necesarias para tu sistema operativo. |
 | `--disable-autostart` | Quitar la aplicación del inicio automático. La aplicación no se iniciará automáticamente cuando el sistema arranque. |
 | `-c, --show-config` | Mostrar la ruta y el contenido del archivo de configuración actual, luego salir sin iniciar el servicio de monitoreo. |
+| `-r, --regenerate-config` | Restablecer los archivos de configuración a los valores de fábrica. Si existe una configuración del sistema, se hará una copia de seguridad como config.json.old antes de reemplazarla. Todos los archivos config.json se restablecerán a los valores predeterminados. |
 | `-v, --verbose` | Habilitar salida de registro detallada. Esto mostrará mensajes de depuración e información detallada sobre la comunicación del dispositivo. |
 | `-q, --quiet` | Ejecutar en modo silencioso, suprimiendo toda salida de registro excepto mensajes de error. |
 | `-V, --version` | Mostrar información de versión. |
@@ -74,7 +82,16 @@ Después de la compilación, puedes ejecutar el programa usando el siguiente com
 
 # Mostrar la configuración actual
 ./target/release/svbony-ai-assistant --show-config
+
+# Regenerar archivos de configuración por defecto
+./target/release/svbony-ai-assistant --regenerate-config
 ```
+
+## Tipos de acción
+- `OpenUrl`: Abrir una URL en el navegador predeterminado.
+- `RunCommand`: Ejecutar un comando del sistema con argumentos opcionales.
+- `SendKeys`: (En desarrollo) Simular pulsaciones de teclas.
+- `ShowNotification`: Mostrar una notificación del sistema con título y mensaje.
 
 ## Archivo de configuración
 El archivo de configuración se utiliza para definir el comportamiento y las acciones de la aplicación. El archivo de configuración puede ubicarse en las siguientes ubicaciones:
@@ -120,31 +137,38 @@ Si el archivo de configuración no existe, la aplicación utilizará la configur
     "minimize_to_tray": true,
     "log_level": "info",
     "check_updates": true
-  }
+  },
+  "version": "0.1.0"
 }
 ```
 
-## Configuración de inicio automático
-Puedes usar los argumentos `--enable-autostart` y `--disable-autostart` para habilitar o deshabilitar la función de inicio automático de la aplicación. Por ejemplo:
-```bash
-# Habilitar inicio automático
-./target/release/svbony-ai-assistant --enable-autostart
+### Compatibilidad de versiones
+El archivo de configuración incluye un campo `version` que coincide con la versión de la aplicación. Cuando actualices la aplicación:
+- Si la versión del archivo de configuración no coincide con la versión de la aplicación, la aplicación automáticamente:
+  1. Hará una copia de seguridad de la configuración existente como `config.json.old`
+  2. Creará un nuevo archivo de configuración con los valores predeterminados de fábrica
+- Esto garantiza la compatibilidad entre tu configuración y la versión de la aplicación
+- Los ajustes antiguos pueden encontrarse en el archivo de copia de seguridad si es necesario
 
-# Deshabilitar inicio automático
-./target/release/svbony-ai-assistant --disable-autostart
-```
+## Configuración de inicio automático
+- Si `auto_start` está habilitado en la configuración, la aplicación intentará configurar el inicio automático en el primer inicio.
+- También puedes habilitar/deshabilitar manualmente el inicio automático mediante `--enable-autostart` y `--disable-autostart`.
+
+## Notificaciones
+- **Windows**: Usa notificaciones Toast (PowerShell), con alternativa a notificaciones balloon.
+- **macOS**: Usa `osascript` para notificaciones del sistema.
 
 ## Solución de problemas
 - **Registro**: Puedes usar el argumento `--verbose` para habilitar el registro detallado para una mejor solución de problemas.
-- **Verificación de instancia única**: Si la aplicación no logra iniciarse, puede ser porque otra instancia ya está ejecutándose. Puedes usar el argumento `--foreground` para iniciar múltiples instancias para depuración.
+- **Comprobación de instancia única**: Si la aplicación falla al iniciarse en modo background, puede ser porque otra instancia ya está ejecutándose. Puedes usar el argumento `--foreground` para iniciar múltiples instancias para depuración.
 - **Problemas del archivo de configuración**: Si hay problemas con el archivo de configuración, puedes intentar eliminar el archivo de configuración y reiniciar la aplicación. La aplicación utilizará la configuración predeterminada y recreará el archivo de configuración.
 
 ## Contribución
 Si deseas contribuir al proyecto Asistente IA SVBONY, sigue estos pasos:
-1. Clonar el repositorio de código.
-2. Crear una nueva rama.
-3. Hacer modificaciones y pruebas.
-4. Enviar una pull request.
+1. Clona el repositorio de código.
+2. Crea una nueva rama.
+3. Haz modificaciones y pruebas.
+4. Envía una pull request.
 
 ## Licencia
 Este proyecto está licenciado bajo la Licencia MIT. Para más detalles, consulta el archivo [LICENSE](LICENSE).

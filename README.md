@@ -8,15 +8,22 @@
 2. Extract the archive
 3. Run the binary
 
+## Supported Devices
+- SVBONY SVHub Omni2P (PID: 0x5053)
+- SVBONY SVHub M6 (PID: 0x364d)
+
 ## Introduction
-The SVBONY AI Assistant is a tool designed to monitor the AI button press events on the SVBONY SVHub Omni2P device and execute configured actions such as opening URLs, running commands, or displaying notifications. This tool supports Windows, macOS systems and can be configured to start automatically on system boot.
+The SVBONY AI Assistant is a tool designed to monitor the AI button press events on supported SVBONY devices and execute configured actions such as opening URLs, running commands, sending keystrokes (placeholder), or displaying notifications. This tool supports Windows and macOS systems and can be configured to start automatically on system boot.
 
 ## Features
-- Monitor AI button press events on the SVBONY SVHub Omni2P device.
-- Support multiple actions, including opening URLs, running commands, sending keystrokes, and displaying notifications.
-- Support running in the background or foreground.
-- Support automatic startup on system boot.
+- Monitor AI button press events on the SVBONY SVHub Omni2P and M6 devices.
+- Support multiple actions: open URLs, run commands, send keystrokes (placeholder), display notifications.
+- Support running in the background (daemon) or foreground (with logs).
+- Automatic startup on system boot (configurable, and auto-setup on first run if enabled).
+- Single instance check in background mode.
+- Graceful shutdown via system signals (Ctrl+C, SIGTERM).
 - Detailed configuration and logging.
+- Cross-platform notification support (Windows Toast, macOS osascript).
 
 ## Installation and Usage
 
@@ -59,6 +66,7 @@ After compilation, you can run the program using the following command:
 | `--enable-autostart` | Configure the application to start automatically when the system boots. This will create the necessary autostart entries for your operating system. |
 | `--disable-autostart` | Remove the application from automatic startup. The application will not start automatically when the system boots. |
 | `-c, --show-config` | Display the current configuration file path and contents, then exit without starting the monitoring service. |
+| `-r, --regenerate-config` | Reset configuration files to factory defaults. If system config exists, it will be backed up to the executable directory as config.json.old before being replaced. All config.json files will be reset to factory defaults. |
 | `-v, --verbose` | Enable verbose logging output. This will show debug messages and detailed information about device communication. |
 | `-q, --quiet` | Run in quiet mode, suppressing all log output except for error messages. |
 | `-V, --version` | Display version information. |
@@ -74,7 +82,16 @@ After compilation, you can run the program using the following command:
 
 # Display the current configuration
 ./target/release/svbony-ai-assistant --show-config
+
+# Regenerate default configuration files
+./target/release/svbony-ai-assistant --regenerate-config
 ```
+
+## Action Types
+- `OpenUrl`: Open a URL in the default browser.
+- `RunCommand`: Run a system command with optional arguments.
+- `SendKeys`: (Placeholder) Simulate key presses (not yet implemented).
+- `ShowNotification`: Show a system notification with title and message.
 
 ## Configuration File
 The configuration file is used to define the behavior and actions of the application. The configuration file can be located in the following locations:
@@ -90,7 +107,7 @@ If the configuration file does not exist, the application will use the default c
   "actions": [
     {
       "name": "Open app.notta.ai",
-      "action_type": "OpenUrl",
+      "action_type": "OpenUrl", // Options: OpenUrl, RunCommand, SendKeys, ShowNotification
       "parameters": {
         "url": "https://app.notta.ai",
         "command": null,
@@ -120,23 +137,32 @@ If the configuration file does not exist, the application will use the default c
     "minimize_to_tray": true,
     "log_level": "info",
     "check_updates": true
-  }
+  },
+  "version": "0.1.0"
 }
 ```
 
-## Automatic Startup Configuration
-You can use the `--enable-autostart` and `--disable-autostart` arguments to enable or disable the automatic startup function of the application. For example:
-```bash
-# Enable automatic startup
-./target/release/svbony-ai-assistant --enable-autostart
+### Version Compatibility
 
-# Disable automatic startup
-./target/release/svbony-ai-assistant --disable-autostart
-```
+The configuration file includes a `version` field that matches the application version. When you upgrade the application:
+
+- If the configuration file version doesn't match the application version, the application will automatically:
+  1. Back up the existing configuration to `config.json.old`
+  2. Create a new configuration file with factory default settings
+- This ensures compatibility between your configuration and the application version
+- Old settings can still be found in the backup file if needed
+
+## Automatic Startup Configuration
+- If `auto_start` is enabled in the config, the application will attempt to set up autostart on first run.
+- You can also manually enable/disable autostart via `--enable-autostart` and `--disable-autostart`.
+
+## Notifications
+- **Windows**: Uses Toast notifications (PowerShell), with fallback to balloon notifications.
+- **macOS**: Uses `osascript` for system notifications.
 
 ## Troubleshooting
 - **Logging**: You can use the `--verbose` argument to enable verbose logging for better troubleshooting.
-- **Single Instance Check**: If the application fails to start, it may be because another instance is already running. You can use the `--foreground` argument to start multiple instances for debugging.
+- **Single Instance Check**: If the application fails to start in background mode, it may be because another instance is already running. You can use the `--foreground` argument to start multiple instances for debugging.
 - **Configuration File Issues**: If there are issues with the configuration file, you can try deleting the configuration file and restarting the application. The application will use the default configuration and recreate the configuration file.
 
 ## Contribution

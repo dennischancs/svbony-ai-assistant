@@ -15,6 +15,7 @@ pub struct CliArgs {
     pub enable_autostart: Option<bool>,
     pub disable_autostart: bool,
     pub show_config: bool,
+    pub regenerate_config: bool,
     pub version: bool,
     pub verbose: bool,
     pub quiet: bool,
@@ -67,6 +68,14 @@ impl CliArgs {
                     .action(ArgAction::SetTrue)
             )
             .arg(
+                Arg::new("regenerate-config")
+                    .short('r')
+                    .long("regenerate-config")
+                    .help("Regenerate default configuration files, overwriting any existing files")
+                    .long_help("Create new default configuration files in both system default directory and executable directory, overwriting any existing files with the same name.")
+                    .action(ArgAction::SetTrue)
+            )
+            .arg(
                 Arg::new("verbose")
                     .short('v')
                     .long("verbose")
@@ -98,6 +107,7 @@ impl CliArgs {
         args.enable_autostart = if matches.get_flag("enable-autostart") { Some(true) } else { None };
         args.disable_autostart = matches.get_flag("disable-autostart");
         args.show_config = matches.get_flag("show-config");
+        args.regenerate_config = matches.get_flag("regenerate-config");
         args.version = matches.get_flag("version");
         args.verbose = matches.get_flag("verbose");
         args.quiet = matches.get_flag("quiet");
@@ -184,6 +194,11 @@ impl CliArgs {
 
         if self.show_config {
             self.show_configuration().await?;
+            return Ok(true);
+        }
+        
+        if self.regenerate_config {
+            self.regenerate_configuration().await?;
             return Ok(true);
         }
 
@@ -338,6 +353,25 @@ impl CliArgs {
         Ok(())
     }
 
+    /// Regenerate default configuration files
+    async fn regenerate_configuration(&self) -> Result<()> {
+        println!("正在备份和重置配置文件为出厂设置...");
+        
+        match Config::backup_and_reset_to_factory() {
+            Ok(_) => {
+                println!("配置文件操作成功:");
+                println!("- 如果配置文件存在，已备份为config.json.old");
+                println!("- 所有配置文件已重置为出厂设置");
+            }
+            Err(e) => {
+                println!("重置配置文件时出错: {}", e);
+                return Err(e);
+            }
+        }
+        
+        Ok(())
+    }
+
     /// Create a BackgroundService based on CLI arguments
     pub fn create_background_service(&self) -> Result<BackgroundService> {
         BackgroundService::new(self.should_run_in_background())
@@ -392,6 +426,9 @@ pub fn show_usage_examples() {
     println!();
     println!("Check current configuration:");
     println!("  svbony-ai-assistant --show-config");
+    println!();
+    println!("Regenerate default configuration files:");
+    println!("  svbony-ai-assistant --regenerate-config");
     println!();
     println!("Run quietly (errors only):");
     println!("  svbony-ai-assistant --quiet");

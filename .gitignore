@@ -1,0 +1,41 @@
+# Rust 编译输出
+/target/
+
+# Rust 包管理器
+Cargo.lock
+
+# 编译生成的二进制文件
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+
+# IDE/编辑器相关
+/.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# VSCode
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+
+# 其他
+*.bak 

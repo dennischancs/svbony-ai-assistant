@@ -162,9 +162,18 @@ jobs:
       - name: Generate tag name
         id: tag
         run: |
-          # 使用时间戳创建唯一标签
-          TAG="v$(date +'%Y%m%d-%H%M%S')"
+          # 从Cargo.toml获取版本号而不是使用时间戳
+          VERSION=$(grep '^version = ' Cargo.toml | head -1 | cut -d '"' -f 2)
+          TAG="v${VERSION}"
+          
+          # 检查标签是否已存在
+          if git ls-remote --tags origin | grep -q "refs/tags/$TAG"; then
+            echo "警告: 标签 $TAG 已存在，将为其添加时间戳以避免冲突"
+            TAG="${TAG}-$(date +'%Y%m%d%H%M%S')"
+          fi
+          
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Generated tag: $TAG"
         
       - name: Create Release
@@ -173,9 +182,9 @@ jobs:
           files: |
             release-files/*
           tag_name: ${{ steps.tag.outputs.tag }}
-          name: "Release ${{ steps.tag.outputs.tag }}"
+          name: "Release v${{ env.VERSION }}"
           body: |
-            ## 📦 Cross-platform Binaries
+            ## 📦 SVBONY AI Assistant v${{ env.VERSION }}
             
             This release contains pre-built binaries for:
             - macOS (x86_64, aarch64/Apple Silicon)  
